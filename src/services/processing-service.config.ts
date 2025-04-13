@@ -7,7 +7,7 @@ import {
 } from '@nestjs/microservices';
 
 @Injectable()
-export class processingServiceConfig implements ClientsModuleOptionsFactory {
+export class ProcessingServiceConfig implements ClientsModuleOptionsFactory {
   constructor(private readonly configService: ConfigService) {}
 
   private getProtocol() {

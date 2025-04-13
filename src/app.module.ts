@@ -2,9 +2,11 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ClientsModule } from '@nestjs/microservices';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { PROCESSING_SERVICE_NAME } from './constants';
-import { processingServiceConfig } from './services/processing-service.config';
+import { ProcessingServiceConfig } from './services/processing-service.config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmConfigService } from './services/typeorm.config';
 
 @Module({
   imports: [
@@ -13,10 +15,13 @@ import { processingServiceConfig } from './services/processing-service.config';
       {
         name: PROCESSING_SERVICE_NAME,
         imports: [ConfigModule],
-        inject: [ConfigService],
-        useClass: processingServiceConfig,
+        useClass: ProcessingServiceConfig,
       },
     ]),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useClass: TypeOrmConfigService,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
