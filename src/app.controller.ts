@@ -1,13 +1,17 @@
 import { Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
+import { ApiPollerService } from './api-poller/api-poller.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly apiPollerService: ApiPollerService,
+  ) {}
 
   @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  getLastJobDate() {
+    return this.apiPollerService.getLastJobDate();
   }
 
   @Post()

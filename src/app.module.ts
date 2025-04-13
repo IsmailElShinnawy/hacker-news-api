@@ -7,6 +7,7 @@ import { PROCESSING_SERVICE_NAME } from './constants';
 import { ProcessingServiceConfig } from './services/processing-service.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypeOrmConfigService } from './services/typeorm.config';
+import { ApiPollerModule } from './api-poller/api-poller.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { TypeOrmConfigService } from './services/typeorm.config';
       imports: [ConfigModule],
       useClass: TypeOrmConfigService,
     }),
+    ApiPollerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
