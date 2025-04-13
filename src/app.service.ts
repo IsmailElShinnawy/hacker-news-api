@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
+import { PROCESSING_SERVICE_NAME } from './constants';
 
 @Injectable()
 export class AppService {
   constructor(
-    @Inject('PROCESSING_SERVICE')
+    @Inject(PROCESSING_SERVICE_NAME)
     private readonly processingService: ClientProxy,
   ) {}
 
