@@ -11,7 +11,9 @@ import { ApiPollerModule } from './api-poller/api-poller.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     ClientsModule.registerAsync([
       {
         name: PROCESSING_SERVICE_NAME,
