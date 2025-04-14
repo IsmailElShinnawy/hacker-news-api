@@ -40,6 +40,8 @@ export class StoryService {
 
     const result = await this.storyRepository.insert(newEntities);
     console.log(`Insereted ${result.identifiers.length} NEW entries`);
-    this.processingService.emit(STORIES_CREATED_EVENT, result.identifiers);
+    this.processingService.emit(STORIES_CREATED_EVENT, {
+      ids: result.identifiers.map((r) => r.id as number),
+    });
   }
 }
