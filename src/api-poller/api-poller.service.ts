@@ -3,6 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 import { forkJoin } from 'rxjs';
+import { StoryService } from '../story/story.service';
+import { HackerNewsStoryDto } from 'src/dtos/hacker-news-story.dto';
 
 const API_POLLER_JOB_NAME = 'api-poller-job';
 
@@ -12,6 +14,7 @@ export class ApiPollerService {
     private readonly scheduler: SchedulerRegistry,
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly storyService: StoryService,
   ) {}
 
   private getApiUrl() {
@@ -21,17 +24,21 @@ export class ApiPollerService {
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { name: API_POLLER_JOB_NAME })
   private pollApi() {
     this.httpService
-      .get<Array<number>>(`${this.getApiUrl()}/topstories.json`)
+      .get<
+        Array<HackerNewsStoryDto['id']>
+      >(`${this.getApiUrl()}/topstories.json`)
       .subscribe((res) => {
         forkJoin(
           res.data
-            .slice(0, 10)
+            .slice(0, 20)
             .map((id) =>
-              this.httpService.get<{ id: string; title: string }>(
+              this.httpService.get<HackerNewsStoryDto>(
                 `${this.getApiUrl()}/item/${id}.json`,
               ),
             ),
-        ).subscribe((res) => res.forEach((s) => console.log(s.data.title)));
+        ).subscribe((res) => {
+          void this.storyService.saveBatch(res.map((s) => s.data));
+        });
       });
   }
 
