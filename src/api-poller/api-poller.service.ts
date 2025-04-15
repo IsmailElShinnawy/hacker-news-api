@@ -21,6 +21,10 @@ export class ApiPollerService {
     return `${this.configService.get('API_URL')}/${this.configService.get('API_VERSION')}`;
   }
 
+  private getMaxStories() {
+    return +this.configService.get('MAX_STORIES');
+  }
+
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { name: API_POLLER_JOB_NAME })
   private pollApi() {
     this.httpService
@@ -30,7 +34,7 @@ export class ApiPollerService {
       .subscribe((res) => {
         forkJoin(
           res.data
-            .slice(0, 50)
+            .slice(0, this.getMaxStories())
             .map((id) =>
               this.httpService.get<HackerNewsStoryDto>(
                 `${this.getApiUrl()}/item/${id}.json`,
