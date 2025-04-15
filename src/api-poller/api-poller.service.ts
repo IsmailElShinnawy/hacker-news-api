@@ -30,7 +30,7 @@ export class ApiPollerService {
       .subscribe((res) => {
         forkJoin(
           res.data
-            .slice(0, 20)
+            .slice(0, 50)
             .map((id) =>
               this.httpService.get<HackerNewsStoryDto>(
                 `${this.getApiUrl()}/item/${id}.json`,
