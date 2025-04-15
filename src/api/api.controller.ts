@@ -17,4 +17,15 @@ export class ApiController {
       minCount: minCount ? Number(minCount) : undefined,
     });
   }
+
+  @Get('stories')
+  async getStories(
+    @Query('keyword') keyword?: string,
+    @Query('fromDate') fromDate?: string,
+  ) {
+    return this.apiService.getStoriesByKeywords({
+      keyword,
+      fromDate: fromDate ? new Date(fromDate) : undefined,
+    });
+  }
 }

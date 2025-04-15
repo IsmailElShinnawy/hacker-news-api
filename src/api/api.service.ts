@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Mention } from '../entities/mention.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository, MoreThanOrEqual, Raw } from 'typeorm';
+
+type Filters = {
+  keywords?: Array<string>;
+  fromDate?: Date;
+  minCount?: number;
+};
 
 @Injectable()
 export class ApiService {
@@ -10,11 +16,7 @@ export class ApiService {
     private mentionRepository: Repository<Mention>,
   ) {}
 
-  async getKeywordsFrequency(filters?: {
-    keywords?: Array<string>;
-    fromDate?: Date;
-    minCount?: number;
-  }) {
+  getKeywordsFrequency(filters?: Filters) {
     const query = this.mentionRepository
       .createQueryBuilder('mention')
       .select('mention.keyword', 'keyword')
@@ -51,8 +53,35 @@ export class ApiService {
       });
     }
 
-    return { result: await query.getRawMany() };
+    return query.getRawMany();
   }
 
-  getStoriesByKeywords() {}
+  async getStoriesByKeywords(filters?: { keyword?: string; fromDate?: Date }) {
+    const where: FindOptionsWhere<Mention> = {};
+    if (filters?.keyword) {
+      where.keyword = Raw((alias) => `LOWER(${alias}) LIKE :keyword`, {
+        keyword: `%${filters.keyword.toLowerCase()}%`,
+      });
+    }
+    if (filters?.fromDate) {
+      where.story = { createdAt: MoreThanOrEqual(filters.fromDate) };
+    }
+
+    const queryResult = await this.mentionRepository.find({
+      where,
+      relations: { story: true },
+    });
+
+    const groupedResults = queryResult.reduce((acc, mention) => {
+      if (!acc[mention.keyword]) {
+        acc[mention.keyword] = [];
+      }
+      // Array for keyword is initialized if not there
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      acc[mention.keyword].push(mention.story);
+      return acc;
+    }, {});
+
+    return groupedResults;
+  }
 }
