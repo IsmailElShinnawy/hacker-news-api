@@ -9,3 +9,7 @@ $ npm install
 ```bash
 $ npm run start
 ```
+
+## Swagger
+
+You can find swagger docs @ `http://localhost:3000/swagger` when run locally
