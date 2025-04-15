@@ -12,7 +12,9 @@ export class ApiController {
     @Query('minCount') minCount?: string,
   ) {
     return this.apiService.getKeywordsFrequency({
-      keywords: keywords?.split(',').map((k) => k.trim()),
+      keywords: keywords
+        ? keywords?.split(',').map((k) => k.trim())
+        : undefined,
       fromDate: fromDate ? new Date(fromDate) : undefined,
       minCount: minCount ? Number(minCount) : undefined,
     });
@@ -20,11 +22,13 @@ export class ApiController {
 
   @Get('stories')
   async getStories(
-    @Query('keyword') keyword?: string,
+    @Query('keywords') keywords?: string,
     @Query('fromDate') fromDate?: string,
   ) {
     return this.apiService.getStoriesByKeywords({
-      keyword,
+      keywords: keywords
+        ? keywords?.split(',').map((k) => k.trim())
+        : undefined,
       fromDate: fromDate ? new Date(fromDate) : undefined,
     });
   }

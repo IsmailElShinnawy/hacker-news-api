@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Mention } from '../entities/mention.entity';
-import { FindOptionsWhere, Repository, MoreThanOrEqual, Raw } from 'typeorm';
+import { FindOptionsWhere, Repository, MoreThanOrEqual, In } from 'typeorm';
 
 type Filters = {
   keywords?: Array<string>;
@@ -56,12 +56,13 @@ export class ApiService {
     return query.getRawMany();
   }
 
-  async getStoriesByKeywords(filters?: { keyword?: string; fromDate?: Date }) {
+  async getStoriesByKeywords(filters?: {
+    keywords?: Array<string>;
+    fromDate?: Date;
+  }) {
     const where: FindOptionsWhere<Mention> = {};
-    if (filters?.keyword) {
-      where.keyword = Raw((alias) => `LOWER(${alias}) LIKE :keyword`, {
-        keyword: `%${filters.keyword.toLowerCase()}%`,
-      });
+    if (filters?.keywords && filters.keywords.length > 0) {
+      where.keyword = In(filters.keywords);
     }
     if (filters?.fromDate) {
       where.story = { createdAt: MoreThanOrEqual(filters.fromDate) };
